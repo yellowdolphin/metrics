@@ -38,9 +38,7 @@ from torchmetrics.utilities.exceptions import TorchMetricsUserError
 
 
 def jit_distributed_available() -> bool:
-    have_jit = torch.distributed.is_available() and torch.distributed.is_initialized()
-    have_xla = True
-    return have_jit or have_xla
+    return torch.distributed.is_available() and torch.distributed.is_initialized()
 
 
 class Metric(Module, ABC):
@@ -437,8 +435,9 @@ class Metric(Module, ABC):
             raise TorchMetricsUserError("The Metric has already been synced.")
 
         is_distributed = distributed_available() if callable(distributed_available) else None
+        is_xla = 'xm' in globals() and dist_sync_fn is not None  # TODO: replace xm test
 
-        if not should_sync or not is_distributed:
+        if not should_sync or not any([is_distributed, is_xla]):
             return
 
         if dist_sync_fn is None:
