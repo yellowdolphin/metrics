@@ -435,7 +435,9 @@ class Metric(Module, ABC):
             raise TorchMetricsUserError("The Metric has already been synced.")
 
         is_distributed = distributed_available() if callable(distributed_available) else None
-        is_xla = 'xm' in globals() and dist_sync_fn is not None  # TODO: replace xm test
+        print("xm?", 'xm' in globals())
+        print("dist_sync_fn?", dist_sync_fn is not None)
+        is_xla = (dist_sync_fn is not None)  # TODO: replace by proper test
 
         if not should_sync or not any([is_distributed, is_xla]):
             return
