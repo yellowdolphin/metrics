@@ -38,7 +38,9 @@ from torchmetrics.utilities.exceptions import TorchMetricsUserError
 
 
 def jit_distributed_available() -> bool:
-    return torch.distributed.is_available() and torch.distributed.is_initialized()
+    have_jit = torch.distributed.is_available() and torch.distributed.is_initialized()
+    have_xla = True
+    return have_jit or have_xla
 
 
 class Metric(Module, ABC):
