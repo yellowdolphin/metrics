@@ -431,19 +431,18 @@ class Metric(Module, ABC):
                 only when running in a distributed setting.
             distributed_available: Function to determine if we are running inside a distributed setting
         """
-        if self._is_synced and should_sync:
-            raise TorchMetricsUserError("The Metric has already been synced.")
-
-        is_distributed = distributed_available() if callable(distributed_available) else None
-        print("xm?", 'xm' in globals())
-        print("dist_sync_fn?", dist_sync_fn is not None)
-        is_xla = (dist_sync_fn is not None)  # TODO: replace by proper test
-
-        if not should_sync or not any([is_distributed, is_xla]):
+        if not should_sync:
             return
 
+        if self._is_synced:
+            raise TorchMetricsUserError("The Metric has already been synced.")
+
         if dist_sync_fn is None:
-            dist_sync_fn = gather_all_tensors
+            # TODO: make `distributed_available` user-exposed or hard-coded (callable-test obsolete)
+            if callable(distributed_available) and distributed_available():
+                dist_sync_fn = gather_all_tensors
+            else:
+                return
 
         # cache prior to syncing
         self._cache = {attr: getattr(self, attr) for attr in self._defaults}
