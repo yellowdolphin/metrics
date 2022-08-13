@@ -438,7 +438,7 @@ class Metric(Module, ABC):
             raise TorchMetricsUserError("The Metric has already been synced.")
 
         if dist_sync_fn is None:
-            # TODO: make `distributed_available` user-exposed or hard-coded (callable-test obsolete)
+            # TODO: make `distributed_available` user-exposed or remove it
             if callable(distributed_available) and distributed_available():
                 dist_sync_fn = gather_all_tensors
             else:
