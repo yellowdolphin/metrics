@@ -217,6 +217,7 @@ class Accuracy(StatScores):
         """
         """ returns the mode of the data (binary, multi label, multi class, multi-dim multi class) """
         mode = _mode(preds, target, self.threshold, self.top_k, self.num_classes, self.multiclass, self.ignore_index)
+        print("mode:", mode)
 
         if not self.mode:
             self.mode = mode
