@@ -431,9 +431,8 @@ def _input_format_classification(
         if preds.is_floating_point():
             num_classes = preds.shape[1]
             preds = select_topk(preds, top_k or 1)
-            print("top_k selected preds.sum(dim=1):", preds.sum(dim=1))  # DEBUG
-            print("num_classes:", num_classes)  # DEBUG  many
-            print("multiclass:", multiclass)  # DEBUG    None
+            #print("top_k selected preds.sum(dim=1):", preds.sum(dim=1))  # DEBUG
+            assert (preds.sum(dim=1) == top_k).all()
         else:
             num_classes = num_classes if num_classes else max(preds.max(), target.max()) + 1
             preds = to_onehot(preds, max(2, num_classes))
