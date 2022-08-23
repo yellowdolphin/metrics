@@ -235,8 +235,7 @@ class Accuracy(StatScores):
         else:
             if not self.mode:
                 raise RuntimeError("You have to have determined mode.")
-            print("self:", self.__class__.__name__, self.__module__)
-            print(f"accuracy.update(): top_k = {self.top_k}")
+            print(f"accuracy.update(): top_k = {self.top_k}")  # DEBUG
             tp, fp, tn, fn = _accuracy_update(
                 preds,
                 target,
