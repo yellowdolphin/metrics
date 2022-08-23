@@ -425,7 +425,7 @@ def _input_format_classification(
         assert (case == DataType.MULTILABEL) and top_k  # DEBUG
         raise ValueError("multilabel unexpected")  # DEBUG
         preds = select_topk(preds, top_k)
-    else assert not ((case == DataType.MULTILABEL) and top_k)  # DEBUG
+    else: assert not ((case == DataType.MULTILABEL) and top_k)  # DEBUG
 
     if case in (DataType.MULTICLASS, DataType.MULTIDIM_MULTICLASS) or multiclass:
         if preds.is_floating_point():
