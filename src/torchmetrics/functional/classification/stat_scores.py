@@ -160,6 +160,8 @@ def _stat_scores_update(
         top_k=top_k,
         ignore_index=ignore_index,
     )
+    print("preds:", preds)  # DEBUG
+    print("target:", target)  # DEBUG
 
     if ignore_index is not None and ignore_index >= preds.shape[1]:
         raise ValueError(f"The `ignore_index` {ignore_index} is not valid for inputs with {preds.shape[1]} classes")

@@ -422,20 +422,28 @@ def _input_format_classification(
         num_classes = num_classes if not multiclass else 2
 
     if case == DataType.MULTILABEL and top_k:
+        assert (case == DataType.MULTILABEL) and top_k  # DEBUG
+        raise ValueError("multilabel unexpected")  # DEBUG
         preds = select_topk(preds, top_k)
+    else assert not ((case == DataType.MULTILABEL) and top_k)  # DEBUG
 
     if case in (DataType.MULTICLASS, DataType.MULTIDIM_MULTICLASS) or multiclass:
         if preds.is_floating_point():
             num_classes = preds.shape[1]
             preds = select_topk(preds, top_k or 1)
+            print("top_k selected preds:", preds)  # DEBUG
+            print("num_classes:", num_classes)  # DEBUG
+            print("multiclass:", multiclass)  # DEBUG
         else:
             num_classes = num_classes if num_classes else max(preds.max(), target.max()) + 1
             preds = to_onehot(preds, max(2, num_classes))
+            raise ValueError("unexpected non-float preds")  # DEBUG
 
         target = to_onehot(target, max(2, num_classes))  # type: ignore
 
         if multiclass is False:
             preds, target = preds[:, 1, ...], target[:, 1, ...]
+    else: raise ValueError("unexpected non-MULTICLASS/multiclass")  # DEBUG
 
     if not _check_for_empty_tensors(preds, target):
         if (case in (DataType.MULTICLASS, DataType.MULTIDIM_MULTICLASS) and multiclass is not False) or multiclass:
