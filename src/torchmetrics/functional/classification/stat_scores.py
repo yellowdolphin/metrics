@@ -160,8 +160,9 @@ def _stat_scores_update(
         top_k=top_k,
         ignore_index=ignore_index,
     )
-    print("preds:", preds.sum(dim=1))  # DEBUG
-    print("target:", target.sum(dim=1))  # DEBUG
+    print("preds:", torch.top_k(preds, top_k, dim=1))  # DEBUG
+    assert (preds.sum(dim=1) == top_k).all()
+    #print("target:", target.sum(dim=1))  # DEBUG
 
     if ignore_index is not None and ignore_index >= preds.shape[1]:
         raise ValueError(f"The `ignore_index` {ignore_index} is not valid for inputs with {preds.shape[1]} classes")
