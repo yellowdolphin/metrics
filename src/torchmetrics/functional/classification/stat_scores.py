@@ -161,8 +161,7 @@ def _stat_scores_update(
         ignore_index=ignore_index,
     )
     #print(f"top-{top_k} (top-{self.top_k}) preds:", torch.topk(preds, top_k, dim=1).indices)  # DEBUG
-    print("self:", self.__class__.__name__, self.__module__)
-    print(f"top-{top_k} (top-{self.top_k})")  # DEBUG
+    print(f"stat_scores: top_k = {top_k}")  # DEBUG
     assert (preds.sum(dim=1) == top_k).all()
     #print("target:", target.sum(dim=1))  # DEBUG
 
