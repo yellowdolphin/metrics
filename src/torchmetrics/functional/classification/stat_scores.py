@@ -160,7 +160,7 @@ def _stat_scores_update(
         top_k=top_k,
         ignore_index=ignore_index,
     )
-    print("preds:", torch.top_k(preds, top_k, dim=1))  # DEBUG
+    print("preds:", torch.topk(preds, top_k, dim=1))  # DEBUG
     assert (preds.sum(dim=1) == top_k).all()
     #print("target:", target.sum(dim=1))  # DEBUG
 
