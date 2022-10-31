@@ -438,7 +438,6 @@ class Metric(Module, ABC):
                 only when running in a distributed setting.
             distributed_available: Function to determine if we are running inside a distributed setting
         """
-        # DEBUG master:
         if self._is_synced and should_sync:
             raise TorchMetricsUserError("The Metric has already been synced.")
 
@@ -449,9 +448,6 @@ class Metric(Module, ABC):
 
         if not should_sync or not is_distributed:
             return
-
-        #if self._is_synced:
-        #    raise TorchMetricsUserError("The Metric has already been synced.")
 
         if dist_sync_fn is None:
             dist_sync_fn = gather_all_tensors
@@ -858,6 +854,9 @@ class Metric(Module, ABC):
 
     def __getitem__(self, idx: int) -> "Metric":
         return CompositionalMetric(lambda x: x[idx], self, None)
+
+    def __getnewargs__(self) -> Tuple:
+        return (Metric.__str__(self),)
 
 
 def _neg(x: Tensor) -> Tensor:
