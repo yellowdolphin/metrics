@@ -375,6 +375,10 @@ class Metric(Module, ABC):
         for attr, reduction_fn in self._reductions.items():
             # pre-processing ops (stack or flatten for inputs)
 
+            if isinstance(output_dict[attr], list) and len(output_dict[attr]) == 0:
+                setattr(self, attr, [])
+                continue
+
             if isinstance(output_dict[attr][0], Tensor):
                 output_dict[attr] = torch.stack(output_dict[attr])
             elif isinstance(output_dict[attr][0], list):
@@ -436,21 +440,21 @@ class Metric(Module, ABC):
         """
         # DEBUG master:
         if self._is_synced and should_sync:
-            print("master would raise: _is_synced:", self._is_synced, "should_sync:", should_sync)
-
-
-        if not should_sync:
-            return
-
-        if self._is_synced:
             raise TorchMetricsUserError("The Metric has already been synced.")
 
+        if distributed_available is None and self.distributed_available_fn is not None:
+            distributed_available = self.distributed_available_fn
+
+        is_distributed = distributed_available() if callable(distributed_available) else None
+
+        if not should_sync or not is_distributed:
+            return
+
+        #if self._is_synced:
+        #    raise TorchMetricsUserError("The Metric has already been synced.")
+
         if dist_sync_fn is None:
-            # TODO: make `distributed_available` user-exposed or remove it
-            if callable(distributed_available) and distributed_available():
-                dist_sync_fn = gather_all_tensors
-            else:
-                return
+            dist_sync_fn = gather_all_tensors
 
         # cache prior to syncing
         self._cache = {attr: getattr(self, attr) for attr in self._defaults}
