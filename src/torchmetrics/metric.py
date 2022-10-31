@@ -434,6 +434,11 @@ class Metric(Module, ABC):
                 only when running in a distributed setting.
             distributed_available: Function to determine if we are running inside a distributed setting
         """
+        # DEBUG master:
+        if self._is_synced and should_sync:
+            print("master would raise: _is_synced:", self._is_synced, "should_sync:", should_sync)
+
+
         if not should_sync:
             return
 
