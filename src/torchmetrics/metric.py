@@ -421,7 +421,7 @@ class Metric(Module, ABC):
         dist_sync_fn: Optional[Callable] = None,
         process_group: Optional[Any] = None,
         should_sync: bool = True,
-        distributed_available: Optional[Callable] = jit_distributed_available,
+        distributed_available: Optional[Callable] = None,
     ) -> None:
         """Sync function for manually controlling when metrics states should be synced across processes.
 
@@ -488,7 +488,7 @@ class Metric(Module, ABC):
         process_group: Optional[Any] = None,
         should_sync: bool = True,
         should_unsync: bool = True,
-        distributed_available: Optional[Callable] = jit_distributed_available,
+        distributed_available: Optional[Callable] = None,
     ) -> Generator:
         """Context manager to synchronize the states between processes when running in a distributed setting and
         restore the local cache states after yielding.
@@ -534,7 +534,7 @@ class Metric(Module, ABC):
             # if synchronization happened, the current rank accumulated states will be restored to keep
             # accumulation going if ``should_unsync=True``,
             with self.sync_context(
-                dist_sync_fn=self.dist_sync_fn,  # type: ignore
+                dist_sync_fn=self.dist_sync_fn,
                 should_sync=self._to_sync,
                 should_unsync=self._should_unsync,
             ):
