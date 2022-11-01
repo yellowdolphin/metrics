@@ -34,9 +34,9 @@ def _pairwise_cosine_similarity_update(
     x, y, zero_diagonal = _check_input(x, y, zero_diagonal)
 
     norm = torch.norm(x, p=2, dim=1)
-    x /= norm.unsqueeze(1)
+    x = x / norm.unsqueeze(1)
     norm = torch.norm(y, p=2, dim=1)
-    y /= norm.unsqueeze(1)
+    y = y / norm.unsqueeze(1)
 
     distance = _safe_matmul(x, y)
     if zero_diagonal:
@@ -84,7 +84,6 @@ def pairwise_cosine_similarity(
         tensor([[0.0000, 0.9989, 0.9996],
                 [0.9989, 0.0000, 0.9998],
                 [0.9996, 0.9998, 0.0000]])
-
     """
     distance = _pairwise_cosine_similarity_update(x, y, zero_diagonal)
     return _reduce_distance_matrix(distance, reduction)

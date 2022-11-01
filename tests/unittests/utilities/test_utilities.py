@@ -113,7 +113,7 @@ def test_bincount():
     """test that bincount works in deterministic setting on GPU."""
     torch.use_deterministic_algorithms(True)
 
-    x = torch.randint(100, size=(100,))
+    x = torch.randint(10, size=(100,))
     # uses custom implementation
     res1 = _bincount(x, minlength=10)
 

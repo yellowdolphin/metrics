@@ -22,7 +22,6 @@ from torch import Tensor
 
 from torchmetrics.audio.pesq import PerceptualEvaluationSpeechQuality
 from torchmetrics.functional.audio.pesq import perceptual_evaluation_speech_quality
-from torchmetrics.utilities.imports import _TORCH_GREATER_EQUAL_1_6
 from unittests.audio import _SAMPLE_AUDIO_SPEECH, _SAMPLE_AUDIO_SPEECH_BAB_DB
 from unittests.helpers import seed_all
 from unittests.helpers.testers import MetricTester
@@ -77,9 +76,12 @@ pesq_original_batch_16k_wb = partial(pesq_original_batch, fs=16000, mode="wb")
 class TestPESQ(MetricTester):
     atol = 1e-2
 
+    @pytest.mark.parametrize("n_processes", [1, 2])
     @pytest.mark.parametrize("ddp", [True, False])
     @pytest.mark.parametrize("dist_sync_on_step", [True, False])
-    def test_pesq(self, preds, target, sk_metric, fs, mode, ddp, dist_sync_on_step):
+    def test_pesq(self, preds, target, sk_metric, fs, mode, n_processes, ddp, dist_sync_on_step):
+        if n_processes != 1 and ddp:
+            pytest.skip("Multiprocessing and ddp does not work together")
         self.run_class_metric_test(
             ddp,
             preds,
@@ -87,16 +89,17 @@ class TestPESQ(MetricTester):
             PerceptualEvaluationSpeechQuality,
             sk_metric=partial(average_metric, metric_func=sk_metric),
             dist_sync_on_step=dist_sync_on_step,
-            metric_args=dict(fs=fs, mode=mode),
+            metric_args=dict(fs=fs, mode=mode, n_processes=n_processes),
         )
 
-    def test_pesq_functional(self, preds, target, sk_metric, fs, mode):
+    @pytest.mark.parametrize("n_processes", [1, 2])
+    def test_pesq_functional(self, preds, target, sk_metric, fs, mode, n_processes):
         self.run_functional_metric_test(
             preds,
             target,
             perceptual_evaluation_speech_quality,
             sk_metric,
-            metric_args=dict(fs=fs, mode=mode),
+            metric_args=dict(fs=fs, mode=mode, n_processes=n_processes),
         )
 
     def test_pesq_differentiability(self, preds, target, sk_metric, fs, mode):
@@ -108,9 +111,6 @@ class TestPESQ(MetricTester):
             metric_args=dict(fs=fs, mode=mode),
         )
 
-    @pytest.mark.skipif(
-        not _TORCH_GREATER_EQUAL_1_6, reason="half support of core operations on not support before pytorch v1.6"
-    )
     def test_pesq_half_cpu(self, preds, target, sk_metric, fs, mode):
         pytest.xfail("PESQ metric does not support cpu + half precision")
 
