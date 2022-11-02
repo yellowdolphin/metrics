@@ -1,6 +1,5 @@
 numpy>=1.17.2
 #torch>=1.8.1
-#torch>=1.8.0a0+56b43f4 # CI torch install fails
-torch>=1.8.0
+torch>=1.8.0a0+56b43f4
 packaging
 typing-extensions; python_version < '3.9'
